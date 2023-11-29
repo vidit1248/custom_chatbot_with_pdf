@@ -2,10 +2,12 @@ import requests
 import openpyxl
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import os
 
 
 def get_embedding (text):
-    api_key = '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'
+    api_key = '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'
+    
     api_endpoint = "https://api.openai.com/v1/embeddings"
     headers = {
         'Authorization': f'Bearer {api_key}',

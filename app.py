@@ -27,6 +27,7 @@ def select_files():
 
 def extract_text_from_pdfs(file_paths):
     all_text = ''
+    print ("Got file path: ", file_paths)
     try:
         for file_path in file_paths:
             print('Extracting Text of the File ' + file_path)
@@ -104,11 +105,16 @@ def getEmbeddedString():
 def upload():
     print ("Upload hit")
     # Get the list of files from webpage 
-    files = request.files.getlist("file") 
+    files = request.files.getlist("File")
+    print (files)
     # Iterate for each file in the files List, and Save them 
     for file in files:
         print (file.filename)
         file.save(file.filename)
+        file_path_l = list()
+        file_path_l.append(file.filename)
+        text = extract_text_from_pdfs(file_path_l)
+        createExcelFromTextChunks(divide_string_into_5(text, 10))
     return "{}"
 
 if __name__ == '__main__':

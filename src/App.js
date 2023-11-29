@@ -7,6 +7,11 @@ function App() {
   const [previousChat, setPreviousChat] = useState ([])
   const [currentTittle, setCurrentTittle] = useState (null)
   const inputRef = useRef(null);
+  
+  const [pdfString, setPdfString] = useState(null)
+  
+  const [previousChats, setPreviousChats] = useState([])
+  const [currentTitle, setCurrentTitle] = useState(null)
   //const [fileObj, setFileObj] = React.useState();
 
   const handleUploadClick = () => {
@@ -38,12 +43,14 @@ function App() {
     const formData = new FormData();
 
 		formData.append('File', fileObj);
+    const createXHR = () => new XMLHttpRequest()
 
 		fetch(
 			'http://127.0.0.1:5000/upload',
 			{
 				method: 'POST',
 				body: formData,
+        createXHR,
 			}
 		)
 			.then((response) => response.json())
@@ -69,53 +76,58 @@ function App() {
 
   const getMessages = async () => {
     const options = {
-      method: "POST",
-      body: JSON.stringify({
-        message: value
-      }),
-      headers: {
-        "Content-Type": "application/json"
-      }
+        method: "POST",
+        /*body : JSON.stringify({
+            message: value
+        }),*/
+        body : JSON.stringify({
+            message: value
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
     }
     try {
-      const response = await fetch ('http://localhost:8000/completions', options)
-      const data = await response.json()
-      setMessage(data.choices[0].message)
-    } catch (error) {
-      console.log ("Error in getMessages")
-      console.error (error)
+        const response = await fetch('http://localhost:8000/completions', options)
+        const data = await response.json()
+        console.log('In APP.js' + data.choices[0].text)
+        setMessage(data.choices[0].text)
+    }catch (error) {
+        console.error(error)
     }
-  }
+}
 
-  useEffect (()=>{ 
-    console.log (currentTittle, value, message)
-    if (!currentTittle && value && message) {
-      setCurrentTittle (value)
+useEffect (() => {
+    console.log('current Title ' + currentTitle)
+    console.log('value ' + value)
+    console.log('message ' + message)
+    if(!currentTitle && value && message) {
+        setCurrentTitle(value)
     }
-    if (currentTittle && value && message) {
-      setPreviousChat (previousChat => (
-        [...previousChat, 
-          {
-            tittle: currentTittle,
-            role: "user",
-            content: value
-          }, 
-          {
-            tittle: currentTittle,
-            role: message.role,
-            content: message.content
-          }
 
-        ]
-        
-      ))
+    if (currentTitle && value && message) {
+        setPreviousChats( prevChats => (
+            [...prevChats,
+                {
+                    title:currentTitle,
+                    role: "user",
+                    content: value
+                },
+                {
+                    title: currentTitle,
+                    role: "Assistant",
+                    content: message
+                }]
+        ))
     }
-  }, [message, currentTittle])
 
-  console.log (previousChat)
+}, [message, currentTitle])
 
-  const currentChat = previousChat.filter(previousChat => previousChat.tittle === currentTittle)
-  const uniqueTitles = Array.from(new Set(previousChat.map(previousChat => previousChat.tittle)))
+//console.log(previousChats)
+
+const currentChat = previousChats.filter(previousChat => previousChat.title === currentTitle)
+
+const uniqueTitles = Array.from(new Set(previousChats.map(previousChat => previousChat.title)))
 
   return (
     <div className="app">
